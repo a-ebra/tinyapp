@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/a-ebra/tinyapp/issues"
   },
-  "homepage": "https://github.com/a-ebra/tinyapp#readme"
+  "homepage": "https://github.com/a-ebra/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
