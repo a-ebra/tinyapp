@@ -1,15 +1,31 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const cookieParser = require("cookie-parser");
 
 app.set("view engine", "ejs");
 
 //to generate random string 
 const generateRandomString = require('./randomString')
+const emailLookUp = require('./emailLookUp')
 
 //body parser
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
+//user object declaration
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -78,3 +94,50 @@ app.post("/urls/:shortURL/", (req, res) => {
   //redirect
   res.redirect("/urls")
 });
+
+//login functionality w/cookies
+app.post("/urls/login", (req, res) => {
+  //set username to value of body (login form)
+  const username = req.body.username
+  res.cookie("username", username)
+  //once cookie is acquired redirect
+  res.redirect("/urls")
+});
+
+//logout functionality 
+app.post("/urls/logout", (req, res) => {
+  //clearcookies
+  res.clearCookie("username")
+  //once cookie is cleared redirect
+  res.redirect("/urls")
+});
+
+//register new user
+app.get("/register", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const templateVars = { user: users[userID] };
+  res.render("user-registration", templateVars);
+});
+
+
+app.post("/register", (req, res) => {
+  const id = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (!email) {
+    res.status(400).send("Please enter your email address.")
+  } else if (!password) {
+    res.status(400).send("Please enter your password.")
+  } else if (emailLookUp(email)) {
+    res.status(400).send("A profile with this email address already exists.")
+  }
+  users[id] = {
+    id, 
+    email,
+    password,
+  }
+  res.cookie("user_id", id);
+  res.redirect("/urls");
+});
+
