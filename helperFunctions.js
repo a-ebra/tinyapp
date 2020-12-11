@@ -21,4 +21,4 @@ const emailLookUp = (email) => {
   return false;
 };
 
-module.exports = { generateRandomString, urlsForUser, emailLookUp, userInfo };
+module.exports = { generateRandomString, urlsForUser, emailLookUp };
