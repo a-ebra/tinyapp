@@ -1,3 +1,8 @@
+  const urlDatabase = {
+    // "b2xVn2": "http://www.lighthouselabs.ca",
+    // "9sm5xK": "http://www.google.com"
+  };
+
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6)
 }
@@ -13,9 +18,10 @@ const urlsForUser = (id) => {
 };
 
 const emailLookUp = (email, database) => {
-  for (const user in database) {
-    if (database[user].email === email) {
-      return user;
+  console.log(database)
+  for (const userID in database) {
+    if (database[userID].email === email) {
+      return userID;
     }
   }
   return false;
