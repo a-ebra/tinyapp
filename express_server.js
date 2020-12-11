@@ -47,7 +47,7 @@ const urlDatabase = {
 
 // ***************  GET Methods ***************
 app.get("/", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session.user_id;
   if (!user_id) {
     return res.redirect("/login");
   } else {
@@ -56,7 +56,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session.user_id;
   const userURLs = urlsForUser(user_id);
   if (!user_id) {
     return res.status(404).send("You are not logged in.");
@@ -67,7 +67,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session.user_id;
   if (!user_id) {
     return res.redirect("/login");
   } else {
@@ -77,7 +77,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session.user_id;
   if (!user_id) {
     return res.redirect("/login");
   }
@@ -93,13 +93,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session.user_id;
   const templateVars = { user: users[user_id] };
   res.render("user-registration", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  const user_id = req.cookies["user_id"];
+  const user_id = req.session.user_id;
   const templateVars = { user: users[user_id] }
   res.render("login", templateVars)
 });
