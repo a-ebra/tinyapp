@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
+const cookiesession = require("cookie-session");
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
