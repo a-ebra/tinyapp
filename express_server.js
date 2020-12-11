@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
-const cookiesession = require("cookie-session");
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
@@ -11,8 +10,13 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
+const cookieSession = require("cookie-session");
+app.use(cookieSession({
+  name: "keys", 
+  keys: ["banana"],
+
+  maxAge: 24 * 60 * 60 * 1000
+}));
 
 // *************** helper functions ***************
 
@@ -127,7 +131,7 @@ app.post("/login", (req, res) => {
 
   if (!user_id) {
     return res.status(403).send("Email address not found.");
-  } else if (user_id && !bcrypt.compareSync(password, ))
+  } else if (user_id && !bcrypt.compareSync(password, user_id))
   res.redirect("/urls");
 });
 
