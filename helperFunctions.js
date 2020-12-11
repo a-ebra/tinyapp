@@ -7,7 +7,7 @@ const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6)
 }
 
-const urlsForUser = (id) => {
+const urlsForUser = (id, urlDatabase) => {
   const userURLs = {};
   for (const url in urlDatabase) {
     if (urlDatabase[url].userID === id) {
