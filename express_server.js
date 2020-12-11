@@ -1,9 +1,8 @@
 const express = require("express");
 const app = express();
+app.set("view engine", "ejs");
 const bcrypt = require("bcrypt");
 const PORT = 8080; // default port 8080
-
-app.set("view engine", "ejs");
 
 // *************** parsers ***************
 const bodyParser = require("body-parser");
@@ -28,11 +27,11 @@ const {
 
 //user object declaration
 const users = {
-//   "userRandomID": {
-//     id: "userRandomID",
-//     email: "user@example.com",
-//     password: "purple-monkey-dinosaur"
-//   },
+  "userRandomID": {
+    id: "userRandomID",
+    email: "aqil@aqil.com",
+    password: "aqil"
+  },
 //  "user2RandomID": {
 //     id: "user2RandomID",
 //     email: "user2@example.com",
@@ -78,30 +77,49 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
+  const shortURL = req.params.shortURL
   if (!user_id) {
-    return res.redirect("/login");
+    return res.status(404).send("You are not logged in.");
+  } else if (!urlDatabase[req.params.shortURL]) {
+    return res.status(404).send("URL does ot exist.");
+  } else if (users[req.session.user_id] && urlDatabase[req.params.shortURL]) {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[user_id] };
+    res.render("urls_show", templateVars);
+  } else {
+    return res.status(404).send("You do not have access to this URL.")
   }
-
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[user_id] };
-  res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+
+  if (urlDatabase[shortURL] === undefined) {
+    return res.status(404).send("URL does not exist.");
+  } else {
+    res.redirect(longURL);
+  }
 });
 
 app.get("/register", (req, res) => {
   const user_id = req.session.user_id;
-  const templateVars = { user: users[user_id] };
-  res.render("user-registration", templateVars);
+
+  if (user_id) {
+    res.redirect("/urls")
+  } else {
+    const templateVars = { user: users[user_id] };
+    res.render("user-registration", templateVars);
+  }
 });
 
 app.get("/login", (req, res) => {
   const user_id = req.session.user_id;
-  const templateVars = { user: users[user_id] }
-  res.render("login", templateVars)
+  if (user_id) {
+    res.redirect("/login");
+  } else {
+    const templateVars = { user: users[user_id] }
+    res.render("login", templateVars)
 });
 
 // *************** POST Methods ***************
@@ -110,6 +128,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
+  console.log(urlDatabase)
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -125,24 +144,30 @@ app.post("/urls/:shortURL/", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const password = body.require.password
-  const email = body.require.email
-  const user_id = emailLookUp(email);
-
+  const password = req.body.password
+  const email = req.body.email
+  const user_id = emailLookUp(email, users);
+  const userData = users[key]
+  
   if (!user_id) {
     return res.status(403).send("Email address not found.");
-  } else if (user_id && !bcrypt.compareSync(password, user_id))
-  res.redirect("/urls");
+  } else if (userData.email && bcrypt.compareSync(password, userData.password)) {
+    req.session.user_id = user_id;
+    res.redirect("urls")
+  }
 });
 
+// && !bcrypt.compareSync(password, user_id)
+
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  req.session.user_id = null;
   res.redirect("/urls");
 });
 
 
 app.post("/register", (req, res) => {
-  const id = generateRandomString();
+  console.log(`on the register page`)
+  const user_id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
 
@@ -153,12 +178,13 @@ app.post("/register", (req, res) => {
   } else if (emailLookUp(email)) {
     res.status(400).send("A profile with this email address already exists.");
   }
-  users[id] = {
-    id,
+  users[user_id] = {
+    user_id,
     email,
     password,
   };
-  res.cookie("user_id", id);
+  console.log(users);
+  req.session.user_id = user_id;
   res.redirect("/urls");
 });
 
