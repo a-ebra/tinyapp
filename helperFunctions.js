@@ -13,9 +13,9 @@ const urlsForUser = (id) => {
 };
 
 const emailLookUp = (email) => {
-  for (const user in database) {
-    if (database[user].email === email) {
-      return database[user].id;
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user].id;
     }
   }
   return false;
