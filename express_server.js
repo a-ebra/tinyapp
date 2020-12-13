@@ -40,7 +40,7 @@ const users = {
 };
 
 const urlDatabase = {
-  
+  a1111a: {longURL: "http://youtube.com", userId: "randomUser"}
 };
 
 // ***************  GET Methods ***************
@@ -82,7 +82,7 @@ app.put("/urls/:shortURL", (req, res) => {
     return res.status(404).send("You are not logged in.");
   } else if (!urlDatabase[shortURL]) {
     return res.status(404).send("URL does not exist.");
-  } else if (users[req.session.user_id] && urlDatabase[shortURL]) {
+  } else if (users[user_id] && urlDatabase[shortURL]) {
     const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL], user: users[user_id] };
     res.render("urls_show", templateVars);
   } else {
@@ -135,16 +135,17 @@ app.post("/urls", (req, res) => {
     urlDatabase[user_id] = {};
     urlDatabase[user_id][shortURL] = longURL;
   }
-  // urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
-app.delete("/urls/:shortURL/delete", (req, res) => {
+app.post("/urls/:shortURL/delete", (req, res) => {
   const user_id = req.session.user_id;
+  const shortURL = req.params.shortURL;
+
   if (!user_id) {
     return res.status(404).send("Please login or register.");
-  } else if (user_id && urlDatabase[req.params.shortURL].user_id === user_id) {
-    delete urlDatabase[req.params.shortURL];
+  } else if (user_id && urlsForUser(userId, urlDatabase)[shortURL]) {
+    delete urlDatabase[shortURL];
     res.redirect("/urls");
   } else {
     return res.status(404).send("You do not have access to this page.");
@@ -153,6 +154,11 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL/", (req, res) => {
   const newLongURL = req.body.longURL;
+  const user_id = req.session.user_id;
+
+  if (!user_id) {
+    return res.status(404).send("You do not have access to this page.");
+  } else if (users[user_id] && urlDatabase[req.params.shortURL].userId == userId)
   urlDatabase[req.params.shortURL] = newLongURL;
   res.redirect("/urls");
 });
@@ -164,9 +170,9 @@ app.post("/login", (req, res) => {
   const user_id = emailLookUp(email, users);
   const userData = users[user_id];
   
-  if (!userData.email) {
+  if (!emailLookUp(email, users)) {
     return res.status(403).send("Email address not found.");
-  } else if (!bcrypt.compareSync(password, userData.password)) {
+  } else if (user_id && !bcrypt.compareSync(password, userData.password)) {
     return res.status(403).send("Incorrect password.");
   } else {
     req.session.user_id = user_id;
