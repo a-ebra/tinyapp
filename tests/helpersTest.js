@@ -38,16 +38,16 @@ describe('emailLookUp', function() {
 
 describe('urlsForuser', function() {
   it('should return urls that belong to a specific user ID', function() {
-    const urlDatabse = urlsForUser("userRandomID", users)
-    const expectedOutput = {"11111a": { longURL: "http://www.reddit.com", userID: "userRandomID" }
+    const urls = urlsForUser("userRandomID", urlDatabase)
+    const expectedOutput = {"11111a": { longURL: "http://www.reddit.com", userID: "userRandomID" }}
     
-    assert.equal(urlDatabase, expectedOutput)
+    assert.equal(urls, expectedOutput)
   });
 
   it('should return an empty object', function() {
-    const user = emailLookUp("userXRandomID", users)
+    const urls = urlsForUser("userXRandomID", urlDatabase)
     const expectedOutput = {}
     
-    assert.equal(urlDatabase, expectedOutput)
+    assert.equal(urls, expectedOutput)
   });
 });
