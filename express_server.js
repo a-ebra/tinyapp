@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 const cookieSession = require("cookie-session");
 app.use(cookieSession({
-  name: "keys", 
+  name: "keys",
   keys: ["banana"],
 
   maxAge: 48 * 60 * 60 * 1000
@@ -60,7 +60,7 @@ app.get("/urls", (req, res) => {
     return res.status(404).send("You are not logged in.");
   } else {
     const templateVars = { urls: userURLs, user: users[user_id] };
-    console.log(userURLs)
+    console.log(userURLs);
     res.render("urls_index.ejs", templateVars);
   }
 });
@@ -77,16 +77,16 @@ app.get("/urls/new", (req, res) => {
 
 app.put("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
-  const shortURL = req.params.shortURL
+  const shortURL = req.params.shortURL;
   if (!user_id) {
     return res.status(404).send("You are not logged in.");
-  } else if (!urlDatabase[req.params.shortURL]) {
+  } else if (!urlDatabase[shortURL]) {
     return res.status(404).send("URL does not exist.");
-  } else if (users[req.session.user_id] && urlDatabase[req.params.shortURL]) {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[user_id] };
+  } else if (users[req.session.user_id] && urlDatabase[shortURL]) {
+    const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL], user: users[user_id] };
     res.render("urls_show", templateVars);
   } else {
-    return res.status(404).send("You do not have access to this URL.")
+    return res.status(404).send("You do not have access to this URL.");
   }
 });
 
@@ -106,7 +106,7 @@ app.get("/register", (req, res) => {
   const user_id = req.session.user_id;
 
   if (user_id) {
-    res.redirect("/urls")
+    res.redirect("/urls");
   } else {
     const templateVars = { user: users[user_id] };
     res.render("user-registration", templateVars);
@@ -118,8 +118,8 @@ app.get("/login", (req, res) => {
   if (user_id) {
     res.redirect("/urls");
   } else {
-    const templateVars = { user: users[user_id] }
-    res.render("login", templateVars)
+    const templateVars = { user: users[user_id] };
+    res.render("login", templateVars);
   }
 });
 
@@ -131,11 +131,9 @@ app.post("/urls", (req, res) => {
   const user_id = req.session.user_id;
   if (!user_id) {
     res.redirect("/login");
-  } else if (!urlDatabase[user_id]) {
-    urlDatabase[user_id] = {}
-    urlDatabase[user_id][shortURL] = longURL
   } else {
-    urlDatabase[user_id][shortURL] = longURL
+    urlDatabase[user_id] = {};
+    urlDatabase[user_id][shortURL] = longURL;
   }
   // urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
@@ -146,8 +144,8 @@ app.delete("/urls/:shortURL/delete", (req, res) => {
   if (!user_id) {
     return res.status(404).send("Please login or register.");
   } else if (user_id && urlDatabase[req.params.shortURL].user_id === user_id) {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
   } else {
     return res.status(404).send("You do not have access to this page.");
   }
@@ -160,11 +158,11 @@ app.post("/urls/:shortURL/", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const password = req.body.password
+  const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   const email = req.body.email
   const user_id = emailLookUp(email, users);
-  const userData = users[user_id]
+  const userData = users[user_id];
   
   if (!userData.email) {
     return res.status(403).send("Email address not found.");
