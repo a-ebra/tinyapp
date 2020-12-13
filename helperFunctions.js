@@ -7,18 +7,15 @@ const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6)
 }
 
-const urlsForUser = (id, urlDatabase) => {
-  const userURLs = {};
-  for (const url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userURLs[url] = urlDatabase[url];
-    }
+const urlsForUser = (user_id, urlDatabase) => {
+  if (urlDatabase[user_id]) {
+    return urlDatabase[user_id];
+  } else {
+    return [];
   }
-  return userURLs;
 };
 
 const emailLookUp = (email, database) => {
-  console.log(database)
   for (const userID in database) {
     if (database[userID].email === email) {
       return userID;
