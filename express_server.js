@@ -40,7 +40,7 @@ const users = {
 };
 
 const urlDatabase = {
-  a1111a: {longURL: "http://youtube.com", userId: "randomUser"}
+  // a1111a: {longURL: "http://youtube.com", userId: "randomUser"}
 };
 
 // ***************  GET Methods ***************
@@ -60,7 +60,6 @@ app.get("/urls", (req, res) => {
     return res.status(404).send("You are not logged in.");
   } else {
     const templateVars = { urls: userURLs, user: users[user_id] };
-    console.log(userURLs);
     res.render("urls_index.ejs", templateVars);
   }
 });
@@ -75,18 +74,18 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-app.put("/urls/:shortURL", (req, res) => {
+// edit url page
+app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
   const shortURL = req.params.shortURL;
+  const userURLS = urlsForUser(user_id, urlDatabase)
   if (!user_id) {
     return res.status(404).send("You are not logged in.");
-  } else if (!urlDatabase[shortURL]) {
-    return res.status(404).send("URL does not exist.");
-  } else if (users[user_id] && urlDatabase[shortURL]) {
+  } else if (user_id && !urlDatabase[shortURL] === user_id) {
+    return res.status(404).send("You do not have access to this url.");
+  } else {
     const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL], user: users[user_id] };
     res.render("urls_show", templateVars);
-  } else {
-    return res.status(404).send("You do not have access to this URL.");
   }
 });
 
@@ -131,8 +130,10 @@ app.post("/urls", (req, res) => {
   const user_id = req.session.user_id;
   if (!user_id) {
     res.redirect("/login");
-  } else {
+  } else if (!urlDatabase[user_id]) {
     urlDatabase[user_id] = {};
+    urlDatabase[user_id][shortURL] = longURL;
+  } else {
     urlDatabase[user_id][shortURL] = longURL;
   }
   res.redirect(`/urls/${shortURL}`);
@@ -141,11 +142,11 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const user_id = req.session.user_id;
   const shortURL = req.params.shortURL;
-
+  
   if (!user_id) {
     return res.status(404).send("Please login or register.");
-  } else if (user_id && urlsForUser(userId, urlDatabase)[shortURL]) {
-    delete urlDatabase[shortURL];
+  } else if (user_id && urlsForUser(user_id, urlDatabase)[shortURL]) {
+    delete urlDatabase[user_id][shortURL];
     res.redirect("/urls");
   } else {
     return res.status(404).send("You do not have access to this page.");
@@ -158,9 +159,10 @@ app.post("/urls/:shortURL/", (req, res) => {
 
   if (!user_id) {
     return res.status(404).send("You do not have access to this page.");
-  } else if (users[user_id] && urlDatabase[req.params.shortURL].userId == userId)
+  } else {
   urlDatabase[req.params.shortURL] = newLongURL;
   res.redirect("/urls");
+  }
 });
 
 app.post("/login", (req, res) => {
