@@ -189,12 +189,11 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   const user_id = generateRandomString();
   const email = req.body.email;
-  const password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+  const password = bcrypt.hashSync(req.body.password, 10);
 
   if (!email) {
     res.status(400).send("Please enter your email address.");
-  } else if (!password) {
+  } else if (!req.body.password) {
     res.status(400).send("Please enter your password.");
   } else if (emailLookUp(email)) {
     res.status(400).send("A profile with this email address already exists.");
@@ -202,7 +201,7 @@ app.post("/register", (req, res) => {
   users[user_id] = {
     user_id,
     email,
-    hashedPassword,
+    password,
   };
   req.session.user_id = user_id;
   res.redirect("/urls");
