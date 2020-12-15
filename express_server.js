@@ -91,12 +91,11 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
 
   if (urlDatabase[shortURL] === undefined) {
     return res.status(404).send("URL does not exist.");
   } else {
+    const longURL = urlDatabase[shortURL].longURL
     res.redirect(longURL);
   }
 });
@@ -167,7 +166,6 @@ app.post("/urls/:shortURL/", (req, res) => {
 
 app.post("/login", (req, res) => {
   const password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   const email = req.body.email
   const user_id = emailLookUp(email, users);
   const userData = users[user_id];
