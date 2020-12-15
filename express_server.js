@@ -78,7 +78,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
   const shortURL = req.params.shortURL;
-  const userURLS = urlsForUser(user_id, urlDatabase)
+  
   if (!user_id) {
     return res.status(404).send("You are not logged in.");
   } else if (user_id && !urlDatabase[shortURL] === user_id) {
@@ -91,11 +91,13 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
+  const user_id = req.session.user_id;
+  const userURLS = urlsForUser(user_id, urlDatabase)
 
-  if (urlDatabase[shortURL] === undefined) {
+  if (userURLS[shortURL] === undefined) {
     return res.status(404).send("URL does not exist.");
   } else {
-    const longURL = urlDatabase[shortURL].longURL
+    const longURL = urlDatabase[user_id][shortURL]
     res.redirect(longURL);
   }
 });
