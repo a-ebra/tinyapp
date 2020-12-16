@@ -161,7 +161,7 @@ app.post("/urls/:shortURL/", (req, res) => {
   if (!user_id) {
     return res.status(404).send("You do not have access to this page.");
   } else {
-  urlDatabase[req.params.shortURL] = newLongURL;
+  urlDatabasep[user_id][req.params.shortURL] = newLongURL;
   res.redirect("/urls");
   }
 });
